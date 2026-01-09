@@ -14,7 +14,7 @@ st.set_page_config(page_title="E-Slip Gaji Lapas Arga Makmur", layout="centered"
 
 # --- KONSTANTA ---
 FILE_PATH = 'DataGaji.csv'
-ADMIN_PASSWORD = "admin123" 
+ADMIN_PASSWORD = "Jaka2505" 
 
 # --- FUNGSI LOAD DATA ---
 # Kita gunakan @st.cache_data agar loading cepat, tapi bisa di-clear saat upload
@@ -173,7 +173,7 @@ def main():
             col_a, col_b = st.columns(2)
             with col_a: nama_input = st.text_input("Nama Pegawai")
             with col_b: kode_input = st.text_input("Kode Akses", type="password")
-            bendahara_input = st.text_input("Nama Bendahara", "BUDI SANTOSO, S.E.")
+            bendahara_input = st.text_input("Nama Bendahara", "Jaka Suryadinata")
             cari_button = st.form_submit_button("Cari & Tampilkan PDF")
 
         if cari_button:
@@ -250,3 +250,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
