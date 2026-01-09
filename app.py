@@ -14,17 +14,16 @@ st.set_page_config(page_title="E-Slip Gaji Lapas Arga Makmur", layout="centered"
 
 # --- KONSTANTA ---
 FILE_PATH = 'DataGaji.csv'
-ADMIN_PASSWORD = "Jaka2505" 
+ADMIN_PASSWORD = "admin123" 
 
-# --- FUNGSI LOAD DATA ---
-# Kita gunakan @st.cache_data agar loading cepat, tapi bisa di-clear saat upload
+# --- FUNGSI LOAD DATA (Dengan Cache) ---
 @st.cache_data
 def load_data():
     try:
         # Header ada di baris ke-3 (index 2)
         df = pd.read_csv(FILE_PATH, header=2, dtype=str)
         
-        # Hapus baris sampah (jika ada baris angka urut 1,2,3 di bawah header)
+        # Hapus baris sampah (jika ada)
         if not df.empty:
             val_cek = str(df.iloc[0]['Nama']).strip()
             if val_cek.isdigit() or len(val_cek) < 2:
@@ -158,7 +157,6 @@ def main():
     st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_Pengayoman_Kementerian_Hukum_dan_HAM_RI.png/600px-Logo_Pengayoman_Kementerian_Hukum_dan_HAM_RI.png", width=80)
     menu = st.sidebar.radio("Navigasi", ["Login Pegawai", "Admin Dashboard"])
     
-    # Load data pertama kali
     df = load_data()
 
     # --- MENU PEGAWAI ---
@@ -173,7 +171,7 @@ def main():
             col_a, col_b = st.columns(2)
             with col_a: nama_input = st.text_input("Nama Pegawai")
             with col_b: kode_input = st.text_input("Kode Akses", type="password")
-            bendahara_input = st.text_input("Nama Bendahara", "Jaka Suryadinata")
+            bendahara_input = st.text_input("Nama Bendahara", "BUDI SANTOSO, S.E.")
             cari_button = st.form_submit_button("Cari & Tampilkan PDF")
 
         if cari_button:
@@ -185,26 +183,49 @@ def main():
             if not hasil.empty:
                 pegawai = hasil.iloc[0]
                 st.success(f"Login Sukses: {pegawai['Nama']}")
+                
+                # Buat PDF
                 pdf_file = create_pdf(pegawai, bendahara_input)
                 base64_pdf = base64.b64encode(pdf_file.getvalue()).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="900" type="application/pdf"></iframe>'
+                
+                # --- SOLUSI BLOKIR BROWSER ---
+                # Menggunakan tag <object> yang lebih aman daripada <iframe>
+                # Dan menambahkan tombol download SANGAT JELAS di atasnya
+                
+                st.info("👇 Jika PDF tidak muncul otomatis, silakan klik tombol Download di bawah ini.")
+                
+                # Tombol Download Langsung (Pasti berhasil)
+                st.download_button(
+                    label="📥 DOWNLOAD FILE PDF (KLIK DISINI)",
+                    data=pdf_file,
+                    file_name=f"Slip_{pegawai['Nama']}.pdf",
+                    mime="application/pdf",
+                    type="primary" # Tombol berwarna menonjol
+                )
+                
+                # Preview PDF (Menggunakan <object> agar lebih ramah browser)
+                pdf_display = f'''
+                    <object data="data:application/pdf;base64,{base64_pdf}" type="application/pdf" width="100%" height="800">
+                        <p align="center">
+                            <b>Browser Anda memblokir pratinjau PDF otomatis.</b><br>
+                            Jangan khawatir, silakan klik tombol <b>Download</b> di atas untuk melihat slip gaji Anda.
+                        </p>
+                    </object>
+                '''
                 st.markdown(pdf_display, unsafe_allow_html=True)
-                st.download_button("⬇️ Download PDF", pdf_file, f"Slip_{pegawai['Nama']}.pdf", "application/pdf")
+                
             else:
                 st.error("Data tidak ditemukan.")
 
-    # --- MENU ADMIN (DIPERBARUI) ---
+    # --- MENU ADMIN ---
     elif menu == "Admin Dashboard":
         st.title("⚙️ Admin Dashboard")
         pw = st.sidebar.text_input("Password Admin", type="password")
         
         if pw == ADMIN_PASSWORD:
             st.success("Akses Admin Diterima")
-            
-            # DUA TAB: EDIT & UPLOAD
             tab1, tab2 = st.tabs(["📝 Edit Data Manual", "📂 Upload Data Bulan Baru"])
             
-            # --- TAB 1: EDIT DATA ---
             with tab1:
                 st.info("Gunakan menu ini untuk mengedit data kecil (salah ketik, dll).")
                 if df is not None:
@@ -219,35 +240,25 @@ def main():
                                 f.writelines(header)
                                 f.write(csv)
                             st.toast("Data manual tersimpan!", icon="✅")
-                            load_data.clear() # Bersihkan cache agar data terupdate
+                            load_data.clear()
                             st.rerun() 
                         except Exception as e: st.error(e)
                 else:
                     st.error("File database tidak ditemukan.")
 
-            # --- TAB 2: UPLOAD BULAN BARU ---
             with tab2:
                 st.warning("⚠️ Perhatian: Upload file baru akan MENGHAPUS data bulan lama.")
                 uploaded_file = st.file_uploader("Pilih File CSV (.csv) Data Gaji", type=['csv'])
-                
                 if uploaded_file is not None:
                     if st.button("🚀 Proses & Ganti Database"):
                         try:
-                            # Simpan file
                             with open(FILE_PATH, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
-                            
                             st.success("Sukses! Data gaji bulan baru telah diperbarui.")
-                            st.balloons()
-                            
-                            # Hapus cache data lama agar data baru terbaca
                             load_data.clear()
-                            
-                            # Reload halaman
                             st.rerun()
                         except Exception as e:
                             st.error(f"Gagal upload: {e}")
 
 if __name__ == "__main__":
     main()
-
