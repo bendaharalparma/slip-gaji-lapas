@@ -14,9 +14,11 @@ st.set_page_config(page_title="E-Slip Gaji Lapas Arga Makmur", layout="centered"
 
 # --- KONSTANTA ---
 FILE_PATH = 'DataGaji.csv'
-ADMIN_PASSWORD = "Jaka2505" 
+ADMIN_PASSWORD = "admin123" 
 
 # --- FUNGSI LOAD DATA ---
+# Kita gunakan @st.cache_data agar loading cepat, tapi bisa di-clear saat upload
+@st.cache_data
 def load_data():
     try:
         # Header ada di baris ke-3 (index 2)
@@ -156,6 +158,7 @@ def main():
     st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_Pengayoman_Kementerian_Hukum_dan_HAM_RI.png/600px-Logo_Pengayoman_Kementerian_Hukum_dan_HAM_RI.png", width=80)
     menu = st.sidebar.radio("Navigasi", ["Login Pegawai", "Admin Dashboard"])
     
+    # Load data pertama kali
     df = load_data()
 
     # --- MENU PEGAWAI ---
@@ -170,7 +173,7 @@ def main():
             col_a, col_b = st.columns(2)
             with col_a: nama_input = st.text_input("Nama Pegawai")
             with col_b: kode_input = st.text_input("Kode Akses", type="password")
-            bendahara_input = st.text_input("Nama Bendahara", "JAKA SURYADINATA")
+            bendahara_input = st.text_input("Nama Bendahara", "BUDI SANTOSO, S.E.")
             cari_button = st.form_submit_button("Cari & Tampilkan PDF")
 
         if cari_button:
@@ -198,7 +201,7 @@ def main():
         if pw == ADMIN_PASSWORD:
             st.success("Akses Admin Diterima")
             
-            # MEMBUAT DUA TAB: EDIT & UPLOAD
+            # DUA TAB: EDIT & UPLOAD
             tab1, tab2 = st.tabs(["📝 Edit Data Manual", "📂 Upload Data Bulan Baru"])
             
             # --- TAB 1: EDIT DATA ---
@@ -216,29 +219,32 @@ def main():
                                 f.writelines(header)
                                 f.write(csv)
                             st.toast("Data manual tersimpan!", icon="✅")
-                            st.rerun() # Refresh halaman
+                            load_data.clear() # Bersihkan cache agar data terupdate
+                            st.rerun() 
                         except Exception as e: st.error(e)
                 else:
                     st.error("File database tidak ditemukan.")
 
-            # --- TAB 2: UPLOAD BULAN BARU (FITUR BARU) ---
+            # --- TAB 2: UPLOAD BULAN BARU ---
             with tab2:
                 st.warning("⚠️ Perhatian: Upload file baru akan MENGHAPUS data bulan lama.")
-                st.markdown("Pastikan format file CSV/Excel sama persis dengan bulan sebelumnya (Header di baris ke-3).")
-                
                 uploaded_file = st.file_uploader("Pilih File CSV (.csv) Data Gaji", type=['csv'])
                 
                 if uploaded_file is not None:
                     if st.button("🚀 Proses & Ganti Database"):
                         try:
-                            # Simpan file yang diupload menimpa file lama
+                            # Simpan file
                             with open(FILE_PATH, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
+                            
                             st.success("Sukses! Data gaji bulan baru telah diperbarui.")
                             st.balloons()
-                            # Clear cache agar data baru terbaca
-                            load_data.clear() # Clear specific function cache if using st.cache_data
-                            st.cache_data.clear()
+                            
+                            # Hapus cache data lama agar data baru terbaca
+                            load_data.clear()
+                            
+                            # Reload halaman
+                            st.rerun()
                         except Exception as e:
                             st.error(f"Gagal upload: {e}")
 
