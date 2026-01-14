@@ -10,7 +10,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
 # --- KONFIGURASI HALAMAN ---
-st.set_page_config(page_title="E-Slip Gaji Lapas Arga Makmur", layout="centered", page_icon="📄")
+st.set_page_config(page_title="E-Slip Gaji Lapas Arga Makmur", layout="centered", page_icon="  ")
 
 # --- KONSTANTA ---
 FILE_PATH = 'DataGaji.csv'
@@ -262,3 +262,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
