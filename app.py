@@ -154,14 +154,14 @@ def create_pdf(emp, bendahara_name):
 
 # --- LOGIKA UTAMA ---
 def main():
-    st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_Pengayoman_Kementerian_Hukum_dan_HAM_RI.png/600px-Logo_Pengayoman_Kementerian_Hukum_dan_HAM_RI.png", width=80)
+    st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/0/00/Logo_Kementrian_Imigrasi_dan_Pemasyarakatan_%282024%29.png", width=80)
     menu = st.sidebar.radio("Navigasi", ["Login Pegawai", "Admin Dashboard"])
     
     df = load_data()
 
     # --- MENU PEGAWAI ---
     if menu == "Login Pegawai":
-        st.title("📄 Cetak Slip Gaji Lengkap")
+        st.title("Slip Gaji Pegawai")
         
         if df is None:
             st.warning("⚠️ Database Gaji belum tersedia. Hubungi Admin.")
@@ -262,3 +262,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
