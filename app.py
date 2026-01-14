@@ -1,12 +1,10 @@
 import streamlit as st
-
 # 1. Konfigurasi Halaman (Wajib di paling atas)
 st.set_page_config(
     page_title="Slip Gaji - Lapas Arga Makmur",
     page_icon="👮‍♂️",
     layout="centered"
 )
-
 # 2. Custom CSS untuk Nuansa Lapas Arga Makmur
 st.markdown("""
     <style>
@@ -386,5 +384,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
