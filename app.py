@@ -154,7 +154,7 @@ def create_pdf(emp, bendahara_name):
 
 # --- LOGIKA UTAMA ---
 def main():
-    st.sidebar.image("https://id.wikipedia.org/wiki/Direktorat_Jenderal_Pemasyarakatan#/media/Berkas:Logo_dirjen_Lapas.jpg", width=80)
+    st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/0/00/Logo_Kementrian_Imigrasi_dan_Pemasyarakatan_%282024%29.png", width=80)
     menu = st.sidebar.radio("Navigasi", ["Login Pegawai", "Admin Dashboard"])
     
     df = load_data()
@@ -262,6 +262,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
